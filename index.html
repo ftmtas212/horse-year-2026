@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2026 馬年除夕抽獎 - 尊榮圖片版</title>
+    <title>2026 馬年除夕抽獎 - 尊榮圖片版 (修正)</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root { --red: #d32f2f; --gold: #ffd700; --dark-red: #8b0000; }
-        body { margin: 0; background-color: var(--dark-red); font-family: "Microsoft JhengHei", sans-serif; display: flex; flex-direction: column; align-items: center; min-height: 100vh; color: var(--gold); padding: 40px 20px; }
+        body { margin: 0; background-color: var(--dark-red); font-family: "Microsoft JhengHei", sans-serif; display: flex; flex-direction: column; align-items: center; min-height: 100vh; color: var(--gold); padding: 40px 20px; overflow-x: hidden; }
         h1 { font-size: 3rem; text-shadow: 3px 3px 6px rgba(0,0,0,0.5); }
         .main-stage { text-align: center; background: var(--red); border: 12px solid var(--gold); border-radius: 30px; padding: 40px; box-shadow: 0 20px 50px rgba(0,0,0,0.6); width: 100%; max-width: 700px; margin-bottom: 30px; position: relative; z-index: 10; }
         .display-box { background: white; color: var(--red); font-size: 4rem; font-weight: bold; height: 180px; display: flex; align-items: center; justify-content: center; border-radius: 20px; margin: 20px 0; border: 6px inset var(--gold); box-shadow: inset 0 0 20px rgba(0,0,0,0.2); }
@@ -15,12 +15,50 @@
         .btn:active { transform: translateY(5px); box-shadow: 0 5px 0 #b8860b; }
         .btn:disabled { background: #999; box-shadow: none; color: #444; transform: none; }
         select { width: 80%; padding: 15px; font-size: 1.5rem; border-radius: 15px; border: 4px solid var(--gold); margin-bottom: 20px; }
+        
         .dashboard { width: 100%; max-width: 800px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .card { background: rgba(0, 0, 0, 0.3); border: 2px solid var(--gold); border-radius: 15px; padding: 20px; }
-        table { width: 100%; font-size: 1.2rem; color: #fff; }
+        .card { background: rgba(0, 0, 0, 0.3); border: 2px solid var(--gold); border-radius: 15px; padding: 20px; display: flex; flex-direction: column; }
+        .card h4 { margin-top: 0; border-bottom: 1px solid rgba(255, 215, 0, 0.3); padding-bottom: 10px; }
+        
+        /* --- 修改 1: 捲軸控制區 (Scroll Box) --- */
+        .scroll-box {
+            max-height: 200px; /* 固定高度 */
+            overflow-y: auto;  /* 超出時顯示垂直捲軸 */
+            padding-right: 5px;
+        }
+        /* 自訂捲軸樣式 (Chrome/Safari) */
+        .scroll-box::-webkit-scrollbar { width: 8px; }
+        .scroll-box::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 4px; }
+        .scroll-box::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 4px; }
+        /* -------------------------------------- */
+
+        table { width: 100%; font-size: 1.2rem; color: #fff; border-collapse: collapse; }
+        td { padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        
         .reset-link { margin-top: 50px; color: rgba(255,255,255,0.2); font-size: 0.8rem; cursor: pointer; }
 
-        /* --- 大獎全螢幕貼圖特效樣式 --- */
+        /* --- 修改 2: 金色閃光特效 (Flash Layer) --- */
+        #flash-layer {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: white; /* 初始閃光是白/金 */
+            opacity: 0;
+            pointer-events: none;
+            z-index: 10000; /* 比大獎圖層更高一點 */
+            display: none;
+        }
+        .flash-anim {
+            display: block !important;
+            animation: flashBang 0.8s ease-out forwards;
+        }
+        @keyframes flashBang {
+            0% { opacity: 0; background: #fff; }
+            10% { opacity: 1; background: #fff; } /* 瞬間全白 */
+            30% { opacity: 0.8; background: #ffd700; } /* 轉為金色 */
+            100% { opacity: 0; }
+        }
+        /* --------------------------------------- */
+
         #big-win-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -35,18 +73,16 @@
 
         .sticker-container {
             text-align: center;
-            /* 讓整個容器包含圖片一起彈跳 */
             animation: stickerPop 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
 
-        /* 新增圖片樣式 */
         .sticker-img {
-            width: 80%;         /* 手機版寬度佔 80% */
-            max-width: 400px;   /* 電視/電腦版最大寬度 400px */
-            height: auto;       /* 維持比例 */
-            filter: drop-shadow(0 0 30px gold); /* 保留金色發光效果 */
+            width: 80%;
+            max-width: 400px;
+            height: auto;
+            filter: drop-shadow(0 0 30px gold);
             display: block;
-            margin: 0 auto 20px auto; /* 置中並與下方文字保持距離 */
+            margin: 0 auto 20px auto;
         }
 
         .sticker-text {
@@ -66,7 +102,6 @@
             margin-top: 10px;
         }
 
-        /* 貼圖彈出動畫 */
         @keyframes stickerPop {
             0% { transform: scale(0) rotate(-15deg); opacity: 0; }
             50% { transform: scale(1.2) rotate(5deg); opacity: 1; }
@@ -74,7 +109,6 @@
             100% { transform: scale(1) rotate(0); opacity: 1; }
         }
 
-        /* 背景光芒旋轉動畫 */
         .sunburst {
             position: absolute;
             top: 50%; left: 50%;
@@ -89,9 +123,11 @@
 </head>
 <body>
 
-    <audio id="snd-spin" src="https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3" preload="auto"></audio>
-    <audio id="snd-win" src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3" preload="auto"></audio>
-    <audio id="snd-bigwin" src="https://assets.mixkit.co/active_storage/sfx/2017/2017-preview.mp3" preload="auto"></audio>
+    <div id="flash-layer"></div>
+
+    <audio id="snd-spin" src="mixkit-children-happy-countdown-923.wav" preload="auto"></audio>
+    <audio id="snd-win" src="mixkit-final-level-bonus-2061.wav" preload="auto"></audio>
+    <audio id="snd-bigwin" src="mixkit-medieval-show-fanfare-announcement-226.wav" preload="auto"></audio>
 
     <div id="big-win-overlay" onclick="closeOverlay()">
         <div class="sunburst"></div>
@@ -122,18 +158,19 @@
     <div class="dashboard">
         <div class="card">
             <h4>📦 公共池剩餘</h4>
-            <div id="pool-list" style="font-size: 1.1rem; line-height: 1.8;"></div>
+            <div id="pool-list" class="scroll-box" style="font-size: 1.1rem; line-height: 1.8;"></div>
         </div>
         <div class="card">
             <h4>📜 中獎好運榜</h4>
-            <table id="record-table"><tbody id="record-body"></tbody></table>
+            <div class="scroll-box">
+                <table id="record-table"><tbody id="record-body"></tbody></table>
+            </div>
         </div>
     </div>
 
     <div class="reset-link" onclick="resetGame()">重置系統進度</div>
 
     <script>
-        // --- (JavaScript 部分完全沒有更動，與上一版相同) ---
         const DEFAULT_POOL = ["紅包 600元", "紅包 600元", "紅包 888元", "紅包 888元", "刮刮樂 100元", "超商禮券 500元", "精美小禮物"];
         const DEFAULT_PERSONAL = {
             "A": { name: "成員 A", prize: "大獎 2200元", won: false },
@@ -144,7 +181,7 @@
         let publicPool, personalPrizes, records;
 
         function loadData() {
-            // 使用 v4 作為新的儲存鍵值，確保使用新的設定
+            // 維持使用 v4 key
             publicPool = JSON.parse(localStorage.getItem('cny2026_v4_pool')) || [...DEFAULT_POOL];
             personalPrizes = JSON.parse(localStorage.getItem('cny2026_v4_personal')) || JSON.parse(JSON.stringify(DEFAULT_PERSONAL));
             records = JSON.parse(localStorage.getItem('cny2026_v4_records')) || [];
@@ -161,6 +198,7 @@
         const sndSpin = document.getElementById('snd-spin');
         const sndWin = document.getElementById('snd-win');
         const sndBigWin = document.getElementById('snd-bigwin');
+        const flashLayer = document.getElementById('flash-layer'); // 取得閃光層
 
         btn.addEventListener('click', () => {
             const userKey = userSelect.value;
@@ -193,8 +231,12 @@
                     
                     if(finalPrize === pData.prize) {
                         pData.won = true;
+                        
+                        // --- 觸發閃光與大獎 ---
+                        triggerFlash(); 
                         sndBigWin.play();
                         showBigWinAnimation(pData.name, finalPrize);
+                        
                         message.innerHTML = `🎊 狂賀！${pData.name} 奪得大獎 <b>${finalPrize}</b>！`;
                     } else {
                         const idx = publicPool.indexOf(finalPrize);
@@ -221,10 +263,17 @@
             confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#ffd700', '#ff0000', '#ffffff'] });
         }
 
+        // 新增閃光觸發函式
+        function triggerFlash() {
+            flashLayer.classList.remove('flash-anim');
+            void flashLayer.offsetWidth; // 強制重繪
+            flashLayer.classList.add('flash-anim');
+        }
+
         function showBigWinAnimation(name, prize) {
             overlayText.innerText = `${name} 獨得 ${prize}`;
             overlay.style.display = 'flex';
-            setTimeout(() => { closeOverlay(); }, 6000);
+            setTimeout(() => { closeOverlay(); }, 6000); // 維持 6 秒
         }
 
         function closeOverlay() {
