@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026 馬年除夕抽獎 - 尊榮圖片版</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root { --red: #d32f2f; --gold: #ffd700; --dark-red: #8b0000; }
+        body { margin: 0; background-color: var(--dark-red); font-family: "Microsoft JhengHei", sans-serif; display: flex; flex-direction: column; align-items: center; min-height: 100vh; color: var(--gold); padding: 40px 20px; }
+        h1 { font-size: 3rem; text-shadow: 3px 3px 6px rgba(0,0,0,0.5); }
+        .main-stage { text-align: center; background: var(--red); border: 12px solid var(--gold); border-radius: 30px; padding: 40px; box-shadow: 0 20px 50px rgba(0,0,0,0.6); width: 100%; max-width: 700px; margin-bottom: 30px; position: relative; z-index: 10; }
+        .display-box { background: white; color: var(--red); font-size: 4rem; font-weight: bold; height: 180px; display: flex; align-items: center; justify-content: center; border-radius: 20px; margin: 20px 0; border: 6px inset var(--gold); box-shadow: inset 0 0 20px rgba(0,0,0,0.2); }
+        .btn { background: linear-gradient(180deg, #ffd700 0%, #ff9900 100%); color: var(--dark-red); border: none; padding: 25px 0; width: 100%; font-size: 2.2rem; font-weight: bold; border-radius: 60px; cursor: pointer; box-shadow: 0 10px 0 #b8860b; transition: 0.1s; }
+        .btn:active { transform: translateY(5px); box-shadow: 0 5px 0 #b8860b; }
+        .btn:disabled { background: #999; box-shadow: none; color: #444; transform: none; }
+        select { width: 80%; padding: 15px; font-size: 1.5rem; border-radius: 15px; border: 4px solid var(--gold); margin-bottom: 20px; }
+        .dashboard { width: 100%; max-width: 800px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .card { background: rgba(0, 0, 0, 0.3); border: 2px solid var(--gold); border-radius: 15px; padding: 20px; }
+        table { width: 100%; font-size: 1.2rem; color: #fff; }
+        .reset-link { margin-top: 50px; color: rgba(255,255,255,0.2); font-size: 0.8rem; cursor: pointer; }
+
+        /* --- 大獎全螢幕貼圖特效樣式 --- */
+        #big-win-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 9999;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .sticker-container {
+            text-align: center;
+            /* 讓整個容器包含圖片一起彈跳 */
+            animation: stickerPop 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        /* 新增圖片樣式 */
+        .sticker-img {
+            width: 80%;         /* 手機版寬度佔 80% */
+            max-width: 400px;   /* 電視/電腦版最大寬度 400px */
+            height: auto;       /* 維持比例 */
+            filter: drop-shadow(0 0 30px gold); /* 保留金色發光效果 */
+            display: block;
+            margin: 0 auto 20px auto; /* 置中並與下方文字保持距離 */
+        }
+
+        .sticker-text {
+            font-size: 4rem;
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000;
+            margin: 0;
+            background: linear-gradient(to right, #ffd700, #fff, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .sticker-subtext {
+            font-size: 2.5rem;
+            color: white;
+            margin-top: 10px;
+        }
+
+        /* 貼圖彈出動畫 */
+        @keyframes stickerPop {
+            0% { transform: scale(0) rotate(-15deg); opacity: 0; }
+            50% { transform: scale(1.2) rotate(5deg); opacity: 1; }
+            70% { transform: scale(0.9) rotate(-3deg); }
+            100% { transform: scale(1) rotate(0); opacity: 1; }
+        }
+
+        /* 背景光芒旋轉動畫 */
+        .sunburst {
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 200vmax; height: 200vmax;
+            background: repeating-conic-gradient(from 0deg, rgba(255, 215, 0, 0.1) 0deg 10deg, transparent 10deg 20deg);
+            transform: translate(-50%, -50%);
+            animation: rotateBurst 10s linear infinite;
+            z-index: -1;
+        }
+        @keyframes rotateBurst { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <audio id="snd-spin" src="https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3" preload="auto"></audio>
+    <audio id="snd-win" src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3" preload="auto"></audio>
+    <audio id="snd-bigwin" src="https://assets.mixkit.co/active_storage/sfx/2017/2017-preview.mp3" preload="auto"></audio>
+
+    <div id="big-win-overlay" onclick="closeOverlay()">
+        <div class="sunburst"></div>
+        <div class="sticker-container">
+            <img src="bingo.png" alt="Bingo 大獎" class="sticker-img">
+            
+            <div class="sticker-text">恭喜發財！</div>
+            <div class="sticker-subtext" id="overlay-prize-name">獲得大獎</div>
+        </div>
+        <div style="margin-top: 50px; color: #aaa; font-size: 1rem;">(點擊畫面關閉)</div>
+    </div>
+
+    <h1>🐎 2026 龍馬精神 · 除夕大抽獎 🧧</h1>
+
+    <div class="main-stage">
+        <select id="user-select">
+            <option value="">-- 請先點擊選擇成員 --</option>
+            <option value="A">成員 A (大獎 $2200)</option>
+            <option value="B">成員 B (大獎 $6000)</option>
+            <option value="C">成員 C (大獎 $3600)</option>
+        </select>
+
+        <div class="display-box" id="result-display">準備開獎...</div>
+        <button class="btn" id="spin-btn">開 始 抽 獎</button>
+        <div id="message" style="font-size: 1.8rem; margin-top: 25px; color: white;"></div>
+    </div>
+
+    <div class="dashboard">
+        <div class="card">
+            <h4>📦 公共池剩餘</h4>
+            <div id="pool-list" style="font-size: 1.1rem; line-height: 1.8;"></div>
+        </div>
+        <div class="card">
+            <h4>📜 中獎好運榜</h4>
+            <table id="record-table"><tbody id="record-body"></tbody></table>
+        </div>
+    </div>
+
+    <div class="reset-link" onclick="resetGame()">重置系統進度</div>
+
+    <script>
+        // --- (JavaScript 部分完全沒有更動，與上一版相同) ---
+        const DEFAULT_POOL = ["紅包 600元", "紅包 600元", "紅包 888元", "紅包 888元", "刮刮樂 100元", "超商禮券 500元", "精美小禮物"];
+        const DEFAULT_PERSONAL = {
+            "A": { name: "成員 A", prize: "大獎 2200元", won: false },
+            "B": { name: "成員 B", prize: "大獎 6000元", won: false },
+            "C": { name: "成員 C", prize: "大獎 3600元", won: false }
+        };
+
+        let publicPool, personalPrizes, records;
+
+        function loadData() {
+            // 使用 v4 作為新的儲存鍵值，確保使用新的設定
+            publicPool = JSON.parse(localStorage.getItem('cny2026_v4_pool')) || [...DEFAULT_POOL];
+            personalPrizes = JSON.parse(localStorage.getItem('cny2026_v4_personal')) || JSON.parse(JSON.stringify(DEFAULT_PERSONAL));
+            records = JSON.parse(localStorage.getItem('cny2026_v4_records')) || [];
+            updateUI();
+        }
+
+        const btn = document.getElementById('spin-btn');
+        const display = document.getElementById('result-display');
+        const userSelect = document.getElementById('user-select');
+        const message = document.getElementById('message');
+        const overlay = document.getElementById('big-win-overlay');
+        const overlayText = document.getElementById('overlay-prize-name');
+        
+        const sndSpin = document.getElementById('snd-spin');
+        const sndWin = document.getElementById('snd-win');
+        const sndBigWin = document.getElementById('snd-bigwin');
+
+        btn.addEventListener('click', () => {
+            const userKey = userSelect.value;
+            if(!userKey) { alert("請先選擇成員！"); return; }
+
+            const pData = personalPrizes[userKey];
+            let currentPool = [...publicPool];
+            if(!pData.won) currentPool.push(pData.prize);
+
+            if(currentPool.length === 0) { message.innerText = "全部抽完了！大家馬年發財！"; return; }
+
+            btn.disabled = true;
+            userSelect.disabled = true;
+            message.innerText = "好運奔騰中...";
+            
+            sndSpin.currentTime = 0;
+            sndSpin.loop = true;
+            sndSpin.play();
+
+            let count = 0;
+            const timer = setInterval(() => {
+                display.innerText = currentPool[Math.floor(Math.random() * currentPool.length)];
+                count += 60;
+                
+                if(count >= 3000) { 
+                    clearInterval(timer);
+                    sndSpin.pause(); 
+
+                    const finalPrize = currentPool[Math.floor(Math.random() * currentPool.length)];
+                    
+                    if(finalPrize === pData.prize) {
+                        pData.won = true;
+                        sndBigWin.play();
+                        showBigWinAnimation(pData.name, finalPrize);
+                        message.innerHTML = `🎊 狂賀！${pData.name} 奪得大獎 <b>${finalPrize}</b>！`;
+                    } else {
+                        const idx = publicPool.indexOf(finalPrize);
+                        if(idx > -1) publicPool.splice(idx, 1);
+                        sndWin.play();
+                        triggerConfetti();
+                        message.innerText = `恭喜獲得：${finalPrize}`;
+                    }
+                    
+                    display.innerText = finalPrize;
+                    records.unshift({ name: pData.name, prize: finalPrize });
+                    saveData();
+                    updateUI();
+                    
+                    if(finalPrize !== pData.prize) {
+                        btn.disabled = false;
+                        userSelect.disabled = false;
+                    }
+                }
+            }, 60);
+        });
+
+        function triggerConfetti() {
+            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#ffd700', '#ff0000', '#ffffff'] });
+        }
+
+        function showBigWinAnimation(name, prize) {
+            overlayText.innerText = `${name} 獨得 ${prize}`;
+            overlay.style.display = 'flex';
+            setTimeout(() => { closeOverlay(); }, 6000);
+        }
+
+        function closeOverlay() {
+            overlay.style.display = 'none';
+            btn.disabled = false;
+            userSelect.disabled = false;
+        }
+
+        function updateUI() {
+            const counts = {};
+            publicPool.forEach(x => counts[x] = (counts[x] || 0) + 1);
+            document.getElementById('pool-list').innerHTML = Object.entries(counts).map(([k,v]) => `• ${k} x${v}`).join('<br>');
+            document.getElementById('record-body').innerHTML = records.map(r => `<tr><td>${r.name}</td><td>${r.prize}</td></tr>`).join('');
+        }
+
+        function saveData() {
+            localStorage.setItem('cny2026_v4_pool', JSON.stringify(publicPool));
+            localStorage.setItem('cny2026_v4_personal', JSON.stringify(personalPrizes));
+            localStorage.setItem('cny2026_v4_records', JSON.stringify(records));
+        }
+
+        function resetGame() { if(confirm("確定重置？")) { localStorage.clear(); location.reload(); } }
+
+        loadData();
+    </script>
+</body>
+</html>
