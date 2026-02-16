@@ -3,302 +3,414 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2026 馬年除夕抽獎</title>
+    <title>2026 馬年發財金 - 特效強化版</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        :root { --red: #d32f2f; --gold: #ffd700; --dark-red: #8b0000; }
-        body { margin: 0; background-color: var(--dark-red); font-family: "Microsoft JhengHei", sans-serif; display: flex; flex-direction: column; align-items: center; min-height: 100vh; color: var(--gold); padding: 40px 20px; overflow-x: hidden; }
-        h1 { font-size: 3rem; text-shadow: 3px 3px 6px rgba(0,0,0,0.5); }
-        .main-stage { text-align: center; background: var(--red); border: 12px solid var(--gold); border-radius: 30px; padding: 40px; box-shadow: 0 20px 50px rgba(0,0,0,0.6); width: 100%; max-width: 700px; margin-bottom: 30px; position: relative; z-index: 10; }
-        .display-box { background: white; color: var(--red); font-size: 4rem; font-weight: bold; height: 180px; display: flex; align-items: center; justify-content: center; border-radius: 20px; margin: 20px 0; border: 6px inset var(--gold); box-shadow: inset 0 0 20px rgba(0,0,0,0.2); }
-        .btn { background: linear-gradient(180deg, #ffd700 0%, #ff9900 100%); color: var(--dark-red); border: none; padding: 25px 0; width: 100%; font-size: 2.2rem; font-weight: bold; border-radius: 60px; cursor: pointer; box-shadow: 0 10px 0 #b8860b; transition: 0.1s; }
-        .btn:active { transform: translateY(5px); box-shadow: 0 5px 0 #b8860b; }
-        .btn:disabled { background: #999; box-shadow: none; color: #444; transform: none; }
-        select { width: 80%; padding: 15px; font-size: 1.5rem; border-radius: 15px; border: 4px solid var(--gold); margin-bottom: 20px; }
+        :root { --red: #d32f2f; --gold: #ffd700; --dark-red: #8b0000; --panel-bg: rgba(0,0,0,0.4); }
         
-        .dashboard { width: 100%; max-width: 800px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .card { background: rgba(0, 0, 0, 0.3); border: 2px solid var(--gold); border-radius: 15px; padding: 20px; display: flex; flex-direction: column; }
-        .card h4 { margin-top: 0; border-bottom: 1px solid rgba(255, 215, 0, 0.3); padding-bottom: 10px; }
+        body { 
+            margin: 0; 
+            background-color: var(--dark-red); 
+            font-family: "Microsoft JhengHei", sans-serif; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            min-height: 100vh; 
+            color: var(--gold); 
+            padding: 20px; 
+            box-sizing: border-box;
+        }
+
+        h1 { font-size: 2.5rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); margin: 0 0 20px 0; }
         
-        /* --- 修改 1: 捲軸控制區 (Scroll Box) --- */
-        .scroll-box {
-            max-height: 200px; /* 固定高度 */
-            overflow-y: auto;  /* 超出時顯示垂直捲軸 */
-            padding-right: 5px;
-        }
-        /* 自訂捲軸樣式 (Chrome/Safari) */
-        .scroll-box::-webkit-scrollbar { width: 8px; }
-        .scroll-box::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 4px; }
-        .scroll-box::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 4px; }
-        /* -------------------------------------- */
-
-        table { width: 100%; font-size: 1.2rem; color: #fff; border-collapse: collapse; }
-        td { padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
-        
-        .reset-link { margin-top: 50px; color: rgba(255,255,255,0.2); font-size: 0.8rem; cursor: pointer; }
-
-        /* --- 修改 2: 金色閃光特效 (Flash Layer) --- */
-        #flash-layer {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: white; /* 初始閃光是白/金 */
-            opacity: 0;
-            pointer-events: none;
-            z-index: 10000; /* 比大獎圖層更高一點 */
-            display: none;
-        }
-        .flash-anim {
-            display: block !important;
-            animation: flashBang 0.8s ease-out forwards;
-        }
-        @keyframes flashBang {
-            0% { opacity: 0; background: #fff; }
-            10% { opacity: 1; background: #fff; } /* 瞬間全白 */
-            30% { opacity: 0.8; background: #ffd700; } /* 轉為金色 */
-            100% { opacity: 0; }
-        }
-        /* --------------------------------------- */
-
-        #big-win-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9);
-            z-index: 9999;
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-        }
-
-        .sticker-container {
+        .main-stage {
+            background: var(--red);
+            border: 6px solid var(--gold);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.7);
+            width: 100%;
+            max-width: 600px;
             text-align: center;
-            animation: stickerPop 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            margin-bottom: 25px;
+            position: relative;
+            overflow: hidden; /* 讓閃光特效限制在框內 */
         }
 
-        .sticker-img {
-            width: 80%;
-            max-width: 400px;
-            height: auto;
-            filter: drop-shadow(0 0 30px gold);
-            display: block;
-            margin: 0 auto 20px auto;
+        .user-info {
+            background: rgba(255,255,255,0.15);
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            display: none;
         }
 
-        .sticker-text {
-            font-size: 4rem;
-            font-weight: 900;
+        .display-box {
+            background: white;
+            color: var(--red);
+            font-size: 3rem;
+            font-weight: bold;
+            height: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 15px;
+            margin: 20px 0;
+            border: 5px inset var(--gold);
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.2);
+            padding: 0 10px;
+            position: relative;
+            z-index: 2;
+        }
+
+        select { padding: 12px; font-size: 1.3rem; border-radius: 10px; border: 3px solid var(--gold); width: 100%; text-align: center; cursor: pointer; }
+        
+        .btn {
+            background: linear-gradient(180deg, #ffd700 0%, #ff9900 100%);
+            color: var(--dark-red);
+            border: none;
+            padding: 18px;
+            font-size: 2rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 8px 0 #b8860b;
+            width: 100%;
+            transition: 0.1s;
+            position: relative;
+            z-index: 2;
+        }
+        .btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #b8860b; }
+        .btn:disabled { background: #ccc; box-shadow: none; color: #666; cursor: not-allowed; }
+
+        .status-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        .pool-column {
+            background: var(--panel-bg);
+            border: 1px solid var(--gold);
+            border-radius: 10px;
+            padding: 15px 10px;
+            text-align: left;
+            min-height: 200px;
+        }
+
+        .pool-column h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.1rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,215,0,0.4);
+            padding-bottom: 8px;
             color: #fff;
-            text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000;
+        }
+
+        .highlight-item { color: #ffeb3b; font-weight: bold; text-shadow: 0 0 2px #b8860b; }
+
+        .history-section {
+            width: 100%;
+            max-width: 1000px;
+            margin-top: 20px;
+            background: var(--panel-bg);
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .history-list {
+            list-style: none;
+            padding: 0;
             margin: 0;
-            background: linear-gradient(to right, #ffd700, #fff, #ffd700);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .sticker-subtext {
-            font-size: 2.5rem;
+            max-height: 150px;
+            overflow-y: auto;
             color: white;
-            margin-top: 10px;
+            font-size: 1rem;
         }
 
-        @keyframes stickerPop {
-            0% { transform: scale(0) rotate(-15deg); opacity: 0; }
-            50% { transform: scale(1.2) rotate(5deg); opacity: 1; }
-            70% { transform: scale(0.9) rotate(-3deg); }
-            100% { transform: scale(1) rotate(0); opacity: 1; }
+        .history-list li {
+            padding: 5px 0;
+            border-bottom: 1px dashed rgba(255,255,255,0.2);
+            display: flex;
+            justify-content: space-between;
         }
 
-        .sunburst {
-            position: absolute;
-            top: 50%; left: 50%;
-            width: 200vmax; height: 200vmax;
-            background: repeating-conic-gradient(from 0deg, rgba(255, 215, 0, 0.1) 0deg 10deg, transparent 10deg 20deg);
-            transform: translate(-50%, -50%);
-            animation: rotateBurst 10s linear infinite;
-            z-index: -1;
+        .reset-link { margin-top: 40px; color: rgba(255,255,255,0.3); font-size: 0.8rem; cursor: pointer; text-decoration: underline; }
+
+        /* 閃爍動畫特效 */
+        @keyframes flash-gold {
+            0% { background-color: var(--red); }
+            50% { background-color: #ffeb3b; }
+            100% { background-color: var(--red); }
         }
-        @keyframes rotateBurst { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } }
+        @keyframes flash-white {
+            0% { background-color: var(--red); }
+            50% { background-color: #ffffff; }
+            100% { background-color: var(--red); }
+        }
+        .anim-gold { animation: flash-gold 0.5s ease-out 3; } /* 大獎閃金光 */
+        .anim-white { animation: flash-white 0.2s ease-out 2; } /* 小獎閃白光 */
+
+        @media (max-width: 800px) { .status-board { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
-
-    <div id="flash-layer"></div>
 
     <audio id="snd-spin" src="mixkit-children-happy-countdown-923.wav" preload="auto"></audio>
     <audio id="snd-win" src="mixkit-final-level-bonus-2061.wav" preload="auto"></audio>
     <audio id="snd-bigwin" src="mixkit-medieval-show-fanfare-announcement-226.wav" preload="auto"></audio>
 
-    <div id="big-win-overlay" onclick="closeOverlay()">
-        <div class="sunburst"></div>
-        <div class="sticker-container">
-            <img src="bingo.png" alt="Bingo 大獎" class="sticker-img">
-            
-            <div class="sticker-text">恭喜發財！</div>
-            <div class="sticker-subtext" id="overlay-prize-name">獲得大獎</div>
-        </div>
-        <div style="margin-top: 50px; color: #aaa; font-size: 1rem;">(點擊畫面關閉)</div>
-    </div>
+    <h1>🐎 2026 馬年喜氣抽 🧧</h1>
 
-    <h1>🐎 2026 龍馬精神 · 除夕大抽獎 🧧</h1>
-
-    <div class="main-stage">
-        <select id="user-select">
-            <option value="">-- 請先點擊選擇成員 --</option>
-            <option value="A">成員 A (大獎 $2200)</option>
-            <option value="B">成員 B (大獎 $6000)</option>
-            <option value="C">成員 C (大獎 $3600)</option>
+    <div class="main-stage" id="main-stage">
+        <select id="user-select" onchange="switchUser()">
+            <option value="">-- 請選擇抽獎人 --</option>
+            <option value="mom">媽媽</option>
+            <option value="sis1">大姐</option>
+            <option value="sis2">二姐</option>
         </select>
 
-        <div class="display-box" id="result-display">準備開獎...</div>
+        <div id="user-info-display" class="user-info">
+            已抽次數：<span id="draw-count" style="font-weight:bold; color:#fff; font-size:1.5rem;">0</span> 次
+        </div>
+
+        <div class="display-box" id="result-display">準備開始</div>
         <button class="btn" id="spin-btn">開 始 抽 獎</button>
-        <div id="message" style="font-size: 1.8rem; margin-top: 25px; color: white;"></div>
+        <div id="message" style="margin-top: 15px; min-height: 1.5em; color: white; font-size: 1.2rem;"></div>
     </div>
 
-    <div class="dashboard">
-        <div class="card">
-            <h4>📦 公共池剩餘</h4>
-            <div id="pool-list" class="scroll-box" style="font-size: 1.1rem; line-height: 1.8;"></div>
+    <div class="status-board">
+        <div class="pool-column" style="border-color: #ff80ab;">
+            <h3>👩 媽媽的剩餘獎項</h3>
+            <div id="mom-list" style="font-size:0.9rem; line-height:1.6; color:#ddd;"></div>
         </div>
-        <div class="card">
-            <h4>📜 中獎好運榜</h4>
-            <div class="scroll-box">
-                <table id="record-table"><tbody id="record-body"></tbody></table>
-            </div>
+        <div class="pool-column" style="border-color: #ea80fc;">
+            <h3>👧 大姐的剩餘獎項</h3>
+            <div id="sis1-list" style="font-size:0.9rem; line-height:1.6; color:#ddd;"></div>
+        </div>
+        <div class="pool-column" style="border-color: #ce93d8;">
+            <h3>👧 二姐的剩餘獎項</h3>
+            <div id="sis2-list" style="font-size:0.9rem; line-height:1.6; color:#ddd;"></div>
         </div>
     </div>
 
-    <div class="reset-link" onclick="resetGame()">重置系統進度</div>
+    <div class="history-section">
+        <h3 style="margin:0 0 10px 0; border-bottom:1px solid gold; padding-bottom:5px;">📜 中獎紀錄一覽</h3>
+        <ul id="history-list" class="history-list"><li style="color:#aaa;">目前尚無紀錄</li></ul>
+    </div>
+
+    <div class="reset-link" onclick="resetSystem()">重置系統 (清除所有進度)</div>
 
     <script>
-        const DEFAULT_POOL = ["紅包 600元", "紅包 600元", "紅包 888元", "紅包 888元", "刮刮樂 100元", "超商禮券 500元", "精美小禮物"];
-        const DEFAULT_PERSONAL = {
-            "A": { name: "成員 A", prize: "大獎 2200元", won: false },
-            "B": { name: "成員 B", prize: "大獎 6000元", won: false },
-            "C": { name: "成員 C", prize: "大獎 3600元", won: false }
-        };
-
-        let publicPool, personalPrizes, records;
-
-        function loadData() {
-            // 維持使用 v4 key
-            publicPool = JSON.parse(localStorage.getItem('cny2026_v4_pool')) || [...DEFAULT_POOL];
-            personalPrizes = JSON.parse(localStorage.getItem('cny2026_v4_personal')) || JSON.parse(JSON.stringify(DEFAULT_PERSONAL));
-            records = JSON.parse(localStorage.getItem('cny2026_v4_records')) || [];
-            updateUI();
-        }
-
-        const btn = document.getElementById('spin-btn');
-        const display = document.getElementById('result-display');
-        const userSelect = document.getElementById('user-select');
-        const message = document.getElementById('message');
-        const overlay = document.getElementById('big-win-overlay');
-        const overlayText = document.getElementById('overlay-prize-name');
+        // --- 1. 獎池設定 ---
+        const COMMON_TEMPLATE = [
+            "紅包F1", "紅包F2", 
+            "紅包E1", "紅包E2", "紅包E3", "紅包E4", "紅包E5", "紅包E6", 
+            "紅包D1", 
+            "紅包C1", "紅包C2", 
+            "紅包 1000"
+        ];
+        const MOM_SPECIAL = ["現金 $2400", "現金 $2400", "現金 $2400", "現金 $1000", "現金 $1000"];
+        const SIS_SPECIAL = ["現金 $1200", "現金 $800", "現金 $600"];
+        
+        // --- 2. 系統變數 ---
+        let userPools = {}, drawCounts = {}, records = [];
         
         const sndSpin = document.getElementById('snd-spin');
         const sndWin = document.getElementById('snd-win');
         const sndBigWin = document.getElementById('snd-bigwin');
-        const flashLayer = document.getElementById('flash-layer'); // 取得閃光層
+        const mainStage = document.getElementById('main-stage');
 
+        // --- 3. 初始化 ---
+        function init() {
+            const savedUsers = localStorage.getItem('cny26_v8_users');
+            if (savedUsers) {
+                userPools = JSON.parse(savedUsers);
+                drawCounts = JSON.parse(localStorage.getItem('cny26_v8_counts'));
+                records = JSON.parse(localStorage.getItem('cny26_v8_records')) || [];
+            } else {
+                userPools = {
+                    "mom": [...MOM_SPECIAL, ...COMMON_TEMPLATE],
+                    "sis1": [...SIS_SPECIAL, ...COMMON_TEMPLATE],
+                    "sis2": [...SIS_SPECIAL, ...COMMON_TEMPLATE]
+                };
+                drawCounts = { "mom": 0, "sis1": 0, "sis2": 0 };
+                records = [];
+            }
+            updateUI();
+        }
+
+        function save() {
+            localStorage.setItem('cny26_v8_users', JSON.stringify(userPools));
+            localStorage.setItem('cny26_v8_counts', JSON.stringify(drawCounts));
+            localStorage.setItem('cny26_v8_records', JSON.stringify(records));
+        }
+
+        // --- 4. 介面邏輯 ---
+        const userSelect = document.getElementById('user-select');
+        const countDisplay = document.getElementById('draw-count');
+        const infoDiv = document.getElementById('user-info-display');
+        const btn = document.getElementById('spin-btn');
+        const display = document.getElementById('result-display');
+        const msg = document.getElementById('message');
+
+        function switchUser() {
+            const user = userSelect.value;
+            if (!user) { infoDiv.style.display = 'none'; return; }
+            infoDiv.style.display = 'block';
+            countDisplay.innerText = drawCounts[user];
+            msg.innerText = "";
+            display.innerText = "準備好";
+        }
+
+        function renderPoolList(elementId, items) {
+            const el = document.getElementById(elementId);
+            if (!items || items.length === 0) {
+                el.innerHTML = "<span style='color:#666'>此人獎池已空</span>";
+                return;
+            }
+            const counts = {};
+            items.forEach(x => counts[x] = (counts[x] || 0) + 1);
+            
+            el.innerHTML = Object.entries(counts).map(([k,v]) => {
+                // 嘗試解析數字 (支援 "紅包F1" 這類文字)
+                const val = parseInt(k.replace(/[^0-9]/g, '')) || 0;
+                const style = val >= 1000 ? "class='highlight-item'" : "";
+                return `<div ${style}>• ${k} x${v}</div>`;
+            }).join('');
+        }
+
+        function updateUI() {
+            renderPoolList('mom-list', userPools['mom']);
+            renderPoolList('sis1-list', userPools['sis1']);
+            renderPoolList('sis2-list', userPools['sis2']);
+            
+            const historyList = document.getElementById('history-list');
+            if(records.length > 0) {
+                historyList.innerHTML = records.map(r => `
+                    <li>
+                        <span style="color:var(--gold); font-weight:bold;">${r.who}</span>
+                        <span>${r.prize}</span>
+                    </li>
+                `).join('');
+            } else {
+                historyList.innerHTML = "<li style='color:#aaa;'>目前尚無紀錄</li>";
+            }
+        }
+
+        // --- 5. 特效函數 ---
+        function triggerWinEffect(isBig) {
+            if (isBig) {
+                // 大獎特效：大量金紅碎紙花 + 3秒煙火
+                const duration = 3000;
+                const end = Date.now() + duration;
+                (function frame() {
+                    confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#ffd700', '#ff0000'] });
+                    confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#ffd700', '#ff0000'] });
+                    if (Date.now() < end) requestAnimationFrame(frame);
+                }());
+                // 閃爍背景 (金光)
+                mainStage.classList.remove('anim-white');
+                mainStage.classList.add('anim-gold');
+                setTimeout(() => mainStage.classList.remove('anim-gold'), 1500);
+            } else {
+                // 小獎特效：小爆炸 (白色+金色)
+                confetti({
+                    particleCount: 80,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#ffffff', '#ffd700'],
+                    gravity: 1.2
+                });
+                // 閃爍背景 (白光)
+                mainStage.classList.remove('anim-gold');
+                mainStage.classList.add('anim-white');
+                setTimeout(() => mainStage.classList.remove('anim-white'), 500);
+            }
+        }
+
+        // --- 6. 抽獎核心 ---
         btn.addEventListener('click', () => {
-            const userKey = userSelect.value;
-            if(!userKey) { alert("請先選擇成員！"); return; }
+            const user = userSelect.value;
+            if (!user) { alert("請先選擇抽獎人！"); return; }
+            
+            let currentPool = userPools[user];
+            if (currentPool.length === 0) { 
+                msg.innerText = "該成員的獎池已經全部抽完囉！"; 
+                return; 
+            }
 
-            const pData = personalPrizes[userKey];
-            let currentPool = [...publicPool];
-            if(!pData.won) currentPool.push(pData.prize);
-
-            if(currentPool.length === 0) { message.innerText = "全部抽完了！大家馬年發財！"; return; }
+            // 音效預載 (確保點擊時觸發瀏覽器授權)
+            sndSpin.load(); sndWin.load(); sndBigWin.load();
 
             btn.disabled = true;
             userSelect.disabled = true;
-            message.innerText = "好運奔騰中...";
+            msg.innerText = "好運運算中...";
             
             sndSpin.currentTime = 0;
             sndSpin.loop = true;
-            sndSpin.play();
+            sndSpin.volume = 0.5;
+            sndSpin.play().catch(()=>{});
 
             let count = 0;
             const timer = setInterval(() => {
                 display.innerText = currentPool[Math.floor(Math.random() * currentPool.length)];
                 count += 60;
-                
-                if(count >= 3000) { 
-                    clearInterval(timer);
-                    sndSpin.pause(); 
 
-                    const finalPrize = currentPool[Math.floor(Math.random() * currentPool.length)];
-                    
-                    if(finalPrize === pData.prize) {
-                        pData.won = true;
-                        
-                        // --- 觸發閃光與大獎 ---
-                        triggerFlash(); 
+                if (count >= 2000) {
+                    clearInterval(timer);
+                    sndSpin.pause();
+
+                    // 1. 決定中獎
+                    const winIndex = Math.floor(Math.random() * currentPool.length);
+                    const winItem = currentPool[winIndex];
+
+                    // 2. 移除獎項
+                    userPools[user].splice(winIndex, 1);
+                    drawCounts[user]++;
+
+                    // 3. 判斷大小獎 (超過 1000 算大獎)
+                    const val = parseInt(winItem.replace(/[^0-9]/g, '')) || 0;
+                    const isBigWin = val >= 1000;
+
+                    if (isBigWin) {
+                        sndBigWin.currentTime = 0;
                         sndBigWin.play();
-                        showBigWinAnimation(pData.name, finalPrize);
-                        
-                        message.innerHTML = `🎊 狂賀！${pData.name} 奪得大獎 <b>${finalPrize}</b>！`;
+                        triggerWinEffect(true); // 大獎特效
+                        msg.innerHTML = `🎉 恭喜抽中大獎 <b style="color:#ffeb3b; font-size:1.5rem;">${winItem}</b>！`;
                     } else {
-                        const idx = publicPool.indexOf(finalPrize);
-                        if(idx > -1) publicPool.splice(idx, 1);
+                        sndWin.currentTime = 0;
                         sndWin.play();
-                        triggerConfetti();
-                        message.innerText = `恭喜獲得：${finalPrize}`;
+                        triggerWinEffect(false); // 小獎特效
+                        msg.innerText = `恭喜獲得：${winItem}`;
                     }
+
+                    display.innerText = winItem;
                     
-                    display.innerText = finalPrize;
-                    records.unshift({ name: pData.name, prize: finalPrize });
-                    saveData();
+                    let userName = user;
+                    if(user === "mom") userName = "媽媽";
+                    if(user === "sis1") userName = "大姐";
+                    if(user === "sis2") userName = "二姐";
+
+                    records.unshift({ who: userName, prize: winItem });
+                    
+                    save();
                     updateUI();
                     
-                    if(finalPrize !== pData.prize) {
-                        btn.disabled = false;
-                        userSelect.disabled = false;
-                    }
+                    btn.disabled = false;
+                    userSelect.disabled = false;
+                    countDisplay.innerText = drawCounts[user];
                 }
             }, 60);
         });
 
-        function triggerConfetti() {
-            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#ffd700', '#ff0000', '#ffffff'] });
-        }
+        function resetSystem() { if(confirm("確定重置所有資料？")) { localStorage.clear(); location.reload(); } }
 
-        // 新增閃光觸發函式
-        function triggerFlash() {
-            flashLayer.classList.remove('flash-anim');
-            void flashLayer.offsetWidth; // 強制重繪
-            flashLayer.classList.add('flash-anim');
-        }
-
-        function showBigWinAnimation(name, prize) {
-            overlayText.innerText = `${name} 獨得 ${prize}`;
-            overlay.style.display = 'flex';
-            setTimeout(() => { closeOverlay(); }, 6000); // 維持 6 秒
-        }
-
-        function closeOverlay() {
-            overlay.style.display = 'none';
-            btn.disabled = false;
-            userSelect.disabled = false;
-        }
-
-        function updateUI() {
-            const counts = {};
-            publicPool.forEach(x => counts[x] = (counts[x] || 0) + 1);
-            document.getElementById('pool-list').innerHTML = Object.entries(counts).map(([k,v]) => `• ${k} x${v}`).join('<br>');
-            document.getElementById('record-body').innerHTML = records.map(r => `<tr><td>${r.name}</td><td>${r.prize}</td></tr>`).join('');
-        }
-
-        function saveData() {
-            localStorage.setItem('cny2026_v4_pool', JSON.stringify(publicPool));
-            localStorage.setItem('cny2026_v4_personal', JSON.stringify(personalPrizes));
-            localStorage.setItem('cny2026_v4_records', JSON.stringify(records));
-        }
-
-        function resetGame() { if(confirm("確定重置？")) { localStorage.clear(); location.reload(); } }
-
-        loadData();
+        init();
     </script>
 </body>
-
 </html>
