@@ -3,7 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2026 馬年發財金 - 特效強化版</title>
+    <title>2026 馬年發財金</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="馬年抽獎">
+
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#8b0000">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root { --red: #d32f2f; --gold: #ffd700; --dark-red: #8b0000; --panel-bg: rgba(0,0,0,0.4); }
@@ -17,7 +25,8 @@
             align-items: center; 
             min-height: 100vh; 
             color: var(--gold); 
-            padding: 20px; 
+            /* padding: 20px;  */
+            padding: calc(20px + env(safe-area-inset-top)) 20px 20px 20px;
             box-sizing: border-box;
         }
 
@@ -208,11 +217,12 @@
     <script>
         // --- 1. 獎池設定 ---
         const COMMON_TEMPLATE = [
-            "紅包F1", "紅包F2", 
-            "紅包E1", "紅包E2", "紅包E3", "紅包E4", "紅包E5", "紅包E6", 
-            "紅包D1", 
             "紅包C1", "紅包C2", 
-            "紅包 1000"
+            "紅包D1", "紅包D2", "紅包D3", 
+            "紅包E1", "紅包E2", "紅包E3", "紅包E4", "紅包E5", "紅包E6", 
+            "紅包F1", "紅包F2", 
+            "紅包 1000",
+
         ];
         const MOM_SPECIAL = ["現金 $2400", "現金 $2400", "現金 $2400", "現金 $1000", "現金 $1000"];
         const SIS_SPECIAL = ["現金 $1200", "現金 $800", "現金 $600"];
